@@ -2,7 +2,7 @@
 
 Compilations of my thinkings, learnings, lessons, and my PoV to others' blogs, incidents, experiences, etc
 
-## Contents
+## contents
 
 Mostly about database, distributed systems, application integrity, application performance and/or scalability, etc.
 This is not intended to be a really comprehensive list/blogs, but instead just writings to satisfy myself,
