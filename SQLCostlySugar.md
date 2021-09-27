@@ -19,8 +19,8 @@
 
 ## some other resources
 
-1  [Against SQL](https://scattered-thoughts.net/writing/against-sql/)
+1. [Against SQL](https://scattered-thoughts.net/writing/against-sql/)
 2. [Some Opinionated SQL takes](https://blog.nelhage.com/post/some-opinionated-sql-takes/)
-3  [RonDB internals](https://docs.rondb.com/rondb_internals/)
+3. [RonDB internals](https://docs.rondb.com/rondb_internals/)
 4. [Linkedin's Liquid](https://engineering.linkedin.com/blog/2020/liquid--the-soul-of-a-new-graph-database--part-2)
 5. [FDB Record Layer](https://foundationdb.github.io/fdb-record-layer/)
