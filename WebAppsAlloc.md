@@ -15,6 +15,6 @@ Basically, most web apps spent too much time doing allocs. CPU time spent alloca
 
 To solve it:
 
-1. Reuse buffer/object (pooling) Because mostly have same shapes, and relatively close size (because mostly same type of request). Can use libs like fasthttp, etc. For typical static response (error object, OK without additional data, etc) initiate once, reuse
-2. Use non-serializing lib (like jsonparser/fastjson), and reuse business objects
-3. Need to start with storage (DB, queue, etc) clients that does less allocs. If possible, also native zero allocs API (flatbuffers/capnproto/custom)
+1. Reuse request/response buffer/object (pooling). Mostly have same shapes, and relatively close size (because mostly same type of request). Can use libs like [fasthttp](https://github.com/valyala/fastjson), etc. For typical static response (error object, OK without additional data, etc) initiate once, reuse
+2. Use non-serializing lib (like [jsonparser](https://github.com/buger/jsonparser)/[fastjson](https://github.com/valyala/fastjson)), and reuse internal business objects
+3. Need to start with storage (DB, queue, etc) clients that does less allocs. If possible, also native zero allocs API (e.g. [flatbuffers](https://google.github.io/flatbuffers/)/[capnproto](https://capnproto.org)/custom)

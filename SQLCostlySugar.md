@@ -1,4 +1,4 @@
-# SQL is costly sugar for oltp
+# SQL is costly sugar for OLTP
 
 ## Why?
 
@@ -14,8 +14,8 @@
 
 ## DB favoring real programming language from SQL
 
-1. FDB record layer
-2. Fauna
+1. [FDB record layer](https://github.com/foundationdb/fdb-record-layer/)
+2. [Fauna](https://fauna.com)
 
 ## some other resources
 
