@@ -1,6 +1,7 @@
 # CDC Caveats
 
 CDC being atomic, doesn't mean services consuming it later gonna also be atomic.
+CDC prime feature is its durability in context of committed data will `eventually` got processed.
 
 ## You cant get full read-atomic guarantee directly
 
@@ -10,6 +11,9 @@ Consider above image, in which the main source already committed till LSN (Log S
 2 services consuming from it and calculating different things, one has applied till 202, the other till 205. If there is an API/page/etc that consumes from both services at this time, assuming data read is updated in-between 202 and 205, it means the data read is **NOT** atomic.
 
 To handle this problem, need something a la [RAMP](http://www.bailis.org/papers/ramp-sigmod2014.pdf) or [Facebook's flighttracker](https://research.fb.com/publications/flighttracker-consistency-across-read-optimized-online-stores-at-facebook/)
+
+On smaller case, it may also happens because of single partition guarantee only on CDC storage (e.g. kafka).
+If a transaction happen to read data that affects at least 2 partitions, and one of the consumer is lagging behind, it also may results in non-atomicity.
 
 ## Naive replication-based is unsafe
 
