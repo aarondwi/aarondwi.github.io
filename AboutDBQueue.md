@@ -21,15 +21,15 @@ Some prefer to use db, cause equiv DS + reliable put to queue, and optimize queu
 
 This also applies to some auditing/logging/equiv, if need to be transactional. The downsides are:
 
-1. while reliably putting to queue is easy, reading the correct one to pop needs lot of work
+1. While reliably putting to queue is easy, reading the correct one to pop needs lot of work
 2. Typical queue metrics (current queue length, throughput, inflight, etc) basically comes down to full scan,
 or gonna become a bottleneck to track.
 
 If the performance still can't meet the reqs, the safest solution is to tail transactions using CDC to proper queuing system. This way, data still not get lost.
 
-Related, but other systems, still has much more use:
+Related, but other systems, still has much clearer use:
 
-1. [Kafka](https://kafka.apache.org/)/equiv -> for distributed log/eventing, cdc store, etc
+1. [Kafka](https://kafka.apache.org/)/equiv -> for log/event, cdc store, etc
 2. [Temporal](https://temporal.io)/equiv -> writing business logic directly, no need to explicitly use outside queue
 3. [NATS](https://nats.io) -> high perf ephemeral pub/sub, can also as log with jetstream
 4. [Disruptor](https://github.com/LMAX-Exchange/disruptor)/[Chronicle](https://github.com/OpenHFT/Chronicle-Queue) -> very low latency queuing for HFT, manage state byself. Can read data even before got persisted

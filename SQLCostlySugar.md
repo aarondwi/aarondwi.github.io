@@ -9,7 +9,7 @@
 
 ## What SQL got right
 
-1. Easily evolvable API, all just a single long string. This also makes it easy to implement lots of server side function, such as coalesce, now, date function, etc, without the need to do read first over network
+1. Easily evolvable API, all just a single long string. This also makes it easy to implement lots of server side function, such as `coalesce`, `now`, date-related function, etc, without the need to do read first over network
 2. Composability. Everything is just a table
 
 ## DB favoring real programming language from SQL

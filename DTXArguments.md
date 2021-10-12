@@ -4,7 +4,7 @@ Currently, to achieve atomicity of transactions across microservices, synchronou
 
 While this is mostly true, there are reasons why choreography is not always the best solution:
 
-1. CDC, the implementation of choreography, also has caveats, as its prime feature is **ONLY** durability, as I argued [here](https://github.com/aarondwi/notes/blob/main/CDCCaveats/Caveats.md)
+1. CDC, the main implementation of choreography pattern, also has caveats, as its prime feature is **ONLY** durability, as I argued [here](https://github.com/aarondwi/notes/blob/main/CDCCaveats/Caveats.md)
 2. Choreography patterns assume static configuration for transactions, while in reality there may be optional service.
 3. Choreography also assumes the caller doesn't need to know the result of the respondents.
 4. It is hard to check the status of all transactions/propagations, especially with optional service used.
@@ -54,6 +54,6 @@ The order service accept the request, start the distributed transaction (usually
 
 ## Conclusion
 
-If you need to know the result of all the respondent transactions, the respondents may be dynamic, and occasionally check the status of ongoing transaction + its metrics (how many currently running, where is blocking, etc), go for orchestration.
+If you need to know the result of all the participating respondent, the respondents may be dynamic, and occasionally check the status of ongoing transaction + its metrics (how many currently running, where is blocking, etc), go for orchestration.
 
 All that said, choreography still is the best solution for more static propagations and cases which correctness criteria only whether it is applied or not, such as cache filling/invalidation, pipeline to feed search engine, etc. It usually has higher throughput, as no contention by default and everything can be parallel, just read the log.
