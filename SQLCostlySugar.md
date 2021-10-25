@@ -14,8 +14,9 @@
 
 ## DB favoring real programming language from SQL
 
-1. [FDB record layer](https://github.com/foundationdb/fdb-record-layer/)
+1. [FDB Record Layer](https://github.com/foundationdb/fdb-record-layer/)
 2. [Fauna](https://fauna.com)
+3. [Palantir's AtlasDB](https://github.com/palantir/atlasdb)
 
 ## some other resources
 

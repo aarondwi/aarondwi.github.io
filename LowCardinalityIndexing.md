@@ -1,6 +1,8 @@
 # Low Cardinality Indexing
 
-This note focuses on OLTP setting, not OLAP. In OLAP setting, we can just spam more CPUs to do parallel checking. In OLTP, we can also do that, but also bottlenecked by contention for isolation, number of queries, latency target, etc.
+This note focuses on OLTP setting, not OLAP. In OLAP setting, we can just spam more CPUs to do parallel scan/aggregate/etc. In OLTP, we can also do that, but also bottlenecked by contention for isolation, number of queries, latency target, etc.
+
+Also assuming that the queries cant use other highly selective fields (e.g. unique key, date, etc). If it can, then the low cardinality field can be checked on `filter` step rather than `access` step.
 
 ## For simple, relatively static pattern
 
