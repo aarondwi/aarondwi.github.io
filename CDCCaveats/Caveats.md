@@ -32,4 +32,4 @@ Now the primary crashes. It has sent work with LSN 205 to the CDC, but not yet t
 
 To maintain availability, a HA setup (patroni, pacemaker, manual, etc) now promote replica to primary, which only has till LSN 204 of old master. Now, the CDC already has 205, and consuming services may already do the work, but the primary has no data of it.
 
-The safe way to handle this problem is to use learner-based replication (paxos term), such as [TiDB's TiFlash](https://pingcap.com/blog/delivering-real-time-analytics-and-true-htap-by-combining-columnstore-and-rowstore#strong-consistency)
+The safe way to handle this problem is to use learner-based replication, such as [TiDB's TiFlash](https://pingcap.com/blog/delivering-real-time-analytics-and-true-htap-by-combining-columnstore-and-rowstore#strong-consistency)

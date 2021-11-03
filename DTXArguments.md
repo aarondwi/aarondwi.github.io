@@ -52,6 +52,8 @@ Beside that, if we need to check the status of the transaction with its details,
 
 The order service accept the request, start the distributed transaction (usually by creating global unique id, and saving the request data) and start calling services needed only. No need to call unneeded services. To check the status of the transaction, we can simply query the distributed transaction database.
 
+We still need to know where every other services are, but only for this order service, and not scattered across many services.
+
 ## Conclusion
 
 If you need to know the result of all the participating respondent, the respondents may be dynamic, and occasionally check the status of ongoing transaction + its metrics (how many currently running, where is blocking, etc), go for orchestration.
