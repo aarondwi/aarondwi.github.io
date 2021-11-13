@@ -21,3 +21,5 @@ To solve it:
 3. Need to start with storage (DB, queue, cache, etc) clients that does less allocs. If possible, also native zero allocs API (e.g. [flatbuffers](https://google.github.io/flatbuffers/)/[capnproto](https://capnproto.org)/custom)
 4. Use low allocation logging library (like [zerolog](https://github.com/rs/zerolog) or [zap](https://github.com/uber-go/zap))
 5. Reuse intermediary business objects. Or if possible, make sure it is allocated on the stack.
+
+Note that even though reducing allocation is good, we still need to balance between doing so with code clarity.

@@ -20,7 +20,7 @@ Most prefer safety use repl across DC in single region, async for cross region, 
 3. FoundationDB ([here](https://www.foundationdb.org/files/fdb-paper.pdf) and [here](https://quabase.sei.cmu.edu/mediawiki/index.php/FoundationDB_Data_Replication_Features)) -> Cross region async, preferably write directed to single region.
 4. [Cassandra](https://research.cs.cornell.edu/ladis2009/papers/lakshman-ladis2009.pdf)/scylla -> Replication based, but no rollback. Allow other non-owning node to accept queries and replay to owning (hinted handoff), LWW conflict resolution
 5. [Dynamodb global tables](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables_HowItWorks.html) -> CDC based, LWW conflict detection. Strongly consistent reads only for same region as writes
-6. [Vitess](https://vitess.io/docs/reference/features/two-phase-commit/) -> Local, best effort via coordinator, or 2PC
+6. [Vitess](https://vitess.io/docs/reference/features/two-phase-commit/) -> Local, best effort via coordinator, or 2PC. Based on [here](https://vitess.io/docs/overview/scalability-philosophy/#no-active-active-replication), direct all writes to single region unless the data easily partitioned to many region
 7. [Cockroachdb](https://www.cockroachlabs.com/docs/cockroachcloud/architecture.html?filters=dedicated) -> 2PC over geo, really slow, but easiest to get correctness
 8. [Postgres BDR](https://wiki.postgresql.org/wiki/BDR_Project) -> Custom conflict resolution based
 9. [Galera](https://severalnines.com/database-blog/how-use-cluster-cluster-replication-galera-cluster) -> active-active is dangerous, doesnt have any conflict detection or 2PC
