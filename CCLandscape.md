@@ -6,6 +6,7 @@ This is my thoughts as why academic CC algorithms are not adopted by newest data
 
 1. Lots of production databases, implementation wise, adopt traditional 2PC/OCC + clock like + snapshot for read is adopted, and not esoteric implementations. While write may take long locks (cause distributed, fsync latency, etc), read doesn't have to suffer. And majority of workloads are read-heavy, so this works.
 2. Lock based are usually easier to understand (cause already used to) and implement (cause both single node and distributed have the same pattern), for both pessimistic 2PC and OCC.
+3. Even with non-advanced CC algorithms, it already meets performance requirements.
 
 Example of latest CC used in prod DB:
 
@@ -51,8 +52,8 @@ IMHO cause other esoteric techniques, are either:
 4. Most real world problem have clear, easy perf target (human speed) + easily shardable per user, low contention, with high contention only on specific combined metric (total likes, etc). Even percolator easily reach 2million/s. For those cant, usually very specific only (time series, HFT, etc)
 5. Focus more on higher contention, by somehow rescheduling/reordering to remove contention (but for real contention, still sequential, so not really an improvement)
 6. 2PC for multi partition, only scalable per partition
-7. Most academics employ non-snapshot algo, has bad perf for long running read tx
-8. For non single-global tso/equiv, meaning need very careful engineering to not allow partial read
+7. Employ non-snapshot algo, has bad perf for long running read transactions, which are majority of workloads
+8. For non single-global tso/equivalent, meaning need very careful engineering to not allow partial read
 9. All their benchmarks dont include disk-write/sync and repl, only in memory. Looks really fast, but assuming failure are not correlated
 10. Do not take account how to handle index update, except by also going to serializable check. This means updating data and index should be in lockstep too
 11. Very wasteful on abort
@@ -70,11 +71,11 @@ Notes: every non snapshot doesnt supp non blocking read! So bad for long running
 5. [MOCC](http://www.vldb.org/pvldb/vol10/p49-wang.pdf) means more network traffic for temperature checking, lock, etc (cant go full read/write set only during commit), but can probably be improved with caching temperature, or local only temp. Basically still OCC.
 6. [Silo](http://people.csail.mit.edu/stephentu/papers/silo.pdf)/[foedus](http://www.hpl.hp.com/techreports/2015/HPL-2015-37.pdf) works both memory/dist, but those on distributed setting are using HLC/TrueTime/TSO. Variant used in most newsql
 7. Even [Calvin](http://cs.yale.edu/homes/thomson/publications/calvin-sigmod12.pdf), while being deterministic, need to do reconnaissance check first (expensive if lots), and then goes to OCC like semantic
-8. [HStore](https://www.cs.cmu.edu/~pavlo/courses/fall2013/static/slides/h-store.pdf) becomes full blocking on multi partition
+8. [Hstore](https://www.cs.cmu.edu/~pavlo/courses/fall2013/static/slides/h-store.pdf) becomes full blocking on multi partition
 9. [MV3C](https://www.researchgate.net/publication/311081544_Transaction_Repair_for_Multi-Version_Concurrency_Control) is expensive, cause need to communicate change back-and-forth. Can use its optimization, and do local caching to alleviate. And need custom language
 10. [SSN](https://dl.acm.org/doi/10.1145/2771937.2771949) is a single global object (subject to contention). The explained fully concurrent one is far more complex, full of CAS.
 11. [ermia](https://www2.cs.sfu.ca/~tzwang/ermia.pdf)/[hekaton](https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/) are usable. For example, out of order writing closely mimics mysql. SI is used by almost all newsql right now. Indirection used by lots in memory db. Memory only, not including disk and replication.
 12. [Tictoc](https://dl.acm.org/doi/10.1145/2882903.2882935) provides nice abort reducing, like MOCC. But not strict serializable -> already more than enough. For snapshot, can utilize HLC or the like. But can cause fracture reads, cause no authority which things got read.
 13. [Cicada](https://hyeontaek.com/papers/cicada-sigmod2017.pdf) is like combination of tictoc/silo/foedus/mocc/ermia/hekaton, so inherits most of its benefits or uselessness. It becomes good cause really often garbage collection, cant support long running read only tx. Memory only, not including disk and replication.
-14. [PSAC](https://arxiv.org/abs/1908.05940) are very wasteful on abort
+14. [PSAC](https://arxiv.org/abs/1908.05940) is very wasteful on abort
 15. [Early Lock Release](https://infoscience.epfl.ch/record/152158) will complicate read semantic, will need also to go thru the log. Also cause possibility of holes in the log, as later transaction persists before older ones.

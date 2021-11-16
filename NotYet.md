@@ -15,4 +15,4 @@
 ## non-technical
 
 1. Stupid tech decisions and politics opening lots of new companies and job markets
-2. `Machine is cheap, dev is expensive` mantra only apply to country with high-value currency
+2. `Machine is cheap, dev is expensive` mantra only apply to country with high salary

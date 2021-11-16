@@ -1,10 +1,9 @@
 # Handling Constraints
 
-This is intended for large scale deployments. If a single database is enough,
-please just use the features available
+This is intended for large scale deployments. If a single database is enough, please just use the features available
 
-This is assuming fully serializable transaction is not available. If it is,
-just use it and you are good.
+For foreign-key and uniqueness constraints, below assuming fully serializable transaction is not available.
+If it is, just use it and you are good.
 
 For [I-confluence](http://www.bailis.org/papers/ca-vldb2015.pdf) data (field's length, email format, etc)
 can be done anywhere, even on application level.

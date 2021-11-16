@@ -5,10 +5,10 @@ This is because even when business logics can all reside in a single database, f
 
 1. Payments, usually via gateway, not directly to banks.
 2. Emails, notifications, etc.
-3. Or probably for loads, such as caching, read from replica, etc.
+3. Or actually for loads, such as caching, read from replica, etc.
 
 Because of that, distributed systems' semantics need to be considered, such as:
 
 1. At-least/at-most once delivery. Is it better to send notifs/emails twice, or better losing it? What about payment calls to vendor?
 2. Bulkhead pattern to prevent overloading DB/upstream services. This mostly already built-in to DB connection pool, HTTP libraries, etc.
-3. Rate Limiting, even on single node is better than nothing. Or when 3rd party dependencies give RPS limit.
+3. Rate Limiting, even on single node using a library is better than nothing. Or when 3rd party dependencies give RPS limit.
