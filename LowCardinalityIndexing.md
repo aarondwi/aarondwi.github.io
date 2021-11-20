@@ -11,4 +11,8 @@ Also assuming that the queries cant use other highly selective fields (e.g. uniq
 
 ## For heavy dynamic patterns
 
-Typical in OTA industries, as most search result has many boolean check (e.g. `HAS_SMOKE_AREA`, `HAS_AC`, `HAS_WIFI`, etc). Need to use bitset index, and use partitioning, so do not need to use bitmask over every single record. [Tarantool](https://www.tarantool.io/en/doc/latest/book/box/indexes/) has support for this. Can also use custom bitmap libraries, such as [Roaring Bitmap](https://github.com/RoaringBitmap/) or those using SIMD instructions, such as [kelindar/bitmap](https://github.com/kelindar/bitmap)
+Typical in OTA industries, as most search result has many boolean check (e.g. `HAS_SMOKE_AREA`, `HAS_AC`, `HAS_WIFI`, etc). Need to use bitmap index, and use partitioning, so do not need to use bitmask over every single record.
+[Tarantool](https://www.tarantool.io/en/doc/latest/book/box/indexes/) and [Lucene](http://lucene.apache.org/) (and basically their users, [Elasticsearch](https://www.elastic.co/elasticsearch/) and [Solr](https://solr.apache.org/)) has support for this.
+[Pilosa](https://github.com/pilosa/pilosa) is a full blown distributed store, specialized in bitmap indexing.
+
+Can also use bitmap index libraries, such as [Roaring Bitmap](https://github.com/RoaringBitmap/) or those using SIMD instructions, such as [kelindar/bitmap](https://github.com/kelindar/bitmap). For few patterns to be aware of, see [here](https://medium.com/bumble-tech/bitmap-indexes-in-go-unbelievable-search-speed-bb4a6b00851)
