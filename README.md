@@ -1,4 +1,4 @@
-# notes
+# Aaron's Blog
 
 ## About
 

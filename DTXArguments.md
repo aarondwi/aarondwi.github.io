@@ -4,7 +4,7 @@ Currently, to achieve atomicity of transactions across microservices, synchronou
 
 While this is mostly true, there are reasons why choreography is not always the best solution:
 
-1. CDC, the main implementation of choreography pattern, also has caveats, as its prime feature is **ONLY** durability, as I argued [here](https://github.com/aarondwi/notes/blob/main/CDCCaveats/Caveats.md)
+1. CDC, the main implementation of choreography pattern, also has caveats, as its prime feature is **ONLY** durability, as I argued [here](https://aarondwi.github.io/CDCCaveats/)
 2. Choreography patterns assume static configuration for transactions, while in reality there may be optional service.
 3. Choreography also assumes the caller doesn't need to know the result of the respondents.
 4. It is hard to check the status of all transactions/propagations, especially with optional service used.
