@@ -2,8 +2,8 @@
 
 ## About
 
-This is a compilations of my thinkings, learnings, lessons, and my PoV to others' blogs, incidents, experiences, etc
-Mostly about database, distributed systems, application integrity, application performance and/or scalability, etc.
+This is a compilations of my thinkings, learnings, lessons, and my PoV to others' blogs, incidents, experiences, etc regarding database, distributed systems, application integrity, application performance and/or scalability, etc.
+
 This is not intended to be a really comprehensive list/blogs, but instead just simple notes that are easy to share.
 
 ## Table of Contents
@@ -24,6 +24,7 @@ This is not intended to be a really comprehensive list/blogs, but instead just s
 14. [Techniques to achieve fairness on Multi-tenant Job Queuing](https://aarondwi.github.io/MultiTenantJobFairness)
 15. [SQL is a costly sugar](https://aarondwi.github.io/SQLCostlySugar)
 16. [Allocations on typical web apps](https://aarondwi.github.io/WebAppsAlloc)
+17. [On No Enforcement of Foreign Key Constraint](https://aarondwi.github.io/OnNoFKConstraint)
 
 And here is for [those not yet](https://aarondwi.github.io/NotYet)
 
