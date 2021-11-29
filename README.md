@@ -4,7 +4,7 @@
 
 This is a compilations of my thinkings, learnings, lessons, and my PoV to others' blogs, incidents, experiences, etc regarding database, distributed systems, application integrity, application performance and/or scalability, etc.
 
-This is not intended to be a really comprehensive list/blogs, but instead just simple notes that are easy to share.
+This is not intended to be a really comprehensive list/blogs, but instead just simple notes that are easy to share, and will keep be updated to reflect my view.
 
 ## Table of Contents
 
