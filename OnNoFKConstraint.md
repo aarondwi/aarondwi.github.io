@@ -1,6 +1,6 @@
-# On No Enforcing of Foreign Key Constraints
+# On No Enforcement of Foreign Key Constraints
 
-> This note is about foreign key enforcement, as in `FOREIGN KEY column_id_here REFERENCES parent_table(target_column)` and not about putting the id in the child tables
+> This note is about foreign key enforcement, as in `FOREIGN KEY column_id_here REFERENCES parent_table(target_column)` and not about putting parent's id in the child tables
 
 Common reasoning of using FK enforcement (split into 2):
 
