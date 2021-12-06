@@ -29,7 +29,8 @@ This is a compilation of things to know and be careful about when designing for 
 
 1. Start with simpler pattern, such as those with key-value access only. This typically constitute large number of requests, and very simple to batch (akin to `SELECT * FROM a_table_name WHERE some_field IN (...)`, or redis pipelines, memcache's multi_get).
 2. Prefer pessimistic rather than optimistic concurrency control, so you can control how complex your logic should be without rollbacking everything.
-3. Reduce allocations, as this is another source of non-useful work. See [here](https://aarondwi.github.io/WebAppsAlloc). CPU for allocations are better used for Together's logic
+3. Reduce allocations (if possible), as this is another source of non-useful work. See [here](https://aarondwi.github.io/WebAppsAlloc). CPU for allocations are better used for Together's logic
+4. Use language which can use many cores for many runtime `threads`. Among popular options, Golang fits this best. Synchronous Java without [Project Loom](https://blogs.oracle.com/javamagazine/post/going-inside-javas-project-loom-and-virtual-threads) suffers lots of waiting threads. Javascript(via nodejs), PHP, Python, etc all reduce chance for bigger batch, only batch per process, although this is already much better than nothing. Not sure about .NET ecosystem or async Java ecosystem, but supposedly they are as good as Golang (performance wise)
 
 ### Will be good for
 

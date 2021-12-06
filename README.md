@@ -25,7 +25,7 @@ This is not intended to be a really comprehensive list/blogs, but instead just s
 15. [SQL is a costly sugar](https://aarondwi.github.io/SQLCostlySugar)
 16. [Allocations on typical web apps](https://aarondwi.github.io/WebAppsAlloc)
 17. [On No Enforcement of Foreign Key Constraint](https://aarondwi.github.io/OnNoFKConstraint)
-18. [Notes on Together pattern usage and pitfall](https://aarondwi.github.io/TogetherNotes)
+18. [Notes on `Together` pattern usage and pitfall](https://aarondwi.github.io/TogetherNotes)
 
 And here is for [those not yet](https://aarondwi.github.io/NotYet)
 
