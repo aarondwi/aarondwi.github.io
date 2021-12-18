@@ -38,6 +38,8 @@ This is a compilation of things to know and be careful about when designing for 
     * Not sure about .NET ecosystem or async Java ecosystem, but supposedly they are as good as Golang (performance wise)
     * PHP with its process per request removes all possibility for batching.
 
+5. Be careful with replication lag, usually during batched writes.
+
 ### Will be good for
 
 1. Hasura/postgrest/equivalent and/or Temporal/cloudstate/dapr/equivalent, as these are abstracted API over key-value behavior
