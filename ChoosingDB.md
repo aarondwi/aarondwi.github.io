@@ -15,12 +15,12 @@ In most case, can also use these as basic search/queue/etc. This is enough for m
 
 **The rest need more complex solution, for example:**
 
-1. Social graph / knowledge graph (dgraph, neo4j, janus, nebula, etc)
+1. Social graph / knowledge graph (dgraph, neo4j, janus, nebula, vitess+myrocks, etc)
 2. Search engine (elastic, solr, etc)
-3. Telco (Voltdb, RonDB/NDB)
+3. Telco (VoltDB, RonDB/NDB)
 4. TSDB / monitoring engine (timescale, questdb, clickhouse, prometheus, M3, kdb, influx, kudu  etc) + stream processing for IIoT (kafka, pulsar, spark, flink, etc)
 5. Adtech/caching (aerospike, tarantool, voltdb, singlestore, scylla, redis, memcache, etc)
-6. Geospatial (postGIS, singlestore, cockroach, tarantool, aerospike, kinetica) (for libs, H3 or S2)
+6. Geospatial (postGIS, singlestore, cockroach, tarantool, aerospike, kinetica, geospock) (for libs, H3 or S2)
 7. Small analytics OLTP (HTAP) / data grid (singlestore, ksql, TiDB, kudu, geode, hazelcast, ignite, infinispan, etc)
 8. Proper queuing (rocketmq, rabbitmq, nsq, etc)
 9. Real DW /OLAP (clickhouse, druid, citus, singlestore, kudu, pinot, bigquery, etc)
