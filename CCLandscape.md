@@ -8,6 +8,11 @@ This is my thoughts as why academic CC algorithms are not adopted by newest data
 2. Lock based are usually easier to understand (cause already used to) and implement (cause both single node and distributed have the same pattern), for both pessimistic 2PC and OCC.
 3. Even with non-advanced CC algorithms, it already meets performance requirements. The problems faced in real production usually more into schema change, capacity (memory, disk, etc), recovery, which are not addressed by most academic systems.
 
+There are some **techniques** that are already used to go around heavy contention problem, such as:
+
+1. Some companies open separate campaign. For example, e-commerce may splits voucher redeem from the sales day itself, by asking user to manually redeem before the sales or ask user to invite others to get more discounts. This allows the contention to be split not into 1 min, but for example, to 3 days. This works also as easy promotions.
+2. Another case, if only 1 type of item going to be sold (xiaomi did this kind of flash sale back before), developers can also opt not to materialize the conflict `at all`, as they are not having any limit that should be preserved, just to record who buys the thing, has already paid, etc.
+
 Example of latest CC used in prod DB:
 
 1. [FoundationDB](https://www.foundationdb.org/files/fdb-paper.pdf) -> OCC 2PC, possibly with false negative but no false positive, can explicitly remove/add range.
@@ -57,8 +62,6 @@ IMHO cause other esoteric techniques, are either:
 9. All their benchmarks dont include disk-write/sync and repl, only in memory. Looks really fast, but assuming failure are not correlated
 10. Do not take account how to handle index update, except by also going to serializable check. This means updating data and index should be in lockstep too
 11. Very wasteful on abort
-
-Some companies, to alleviate contention issue, open separate campaign. For example, e-commerce may splits voucher redeem from the sales day itself, by asking user to manually redeem before the sales or ask user to invite others. This allows the contention to be split not into 1 min, but for example, to 3 days. This works also as easy promotions.
 
 ## About academic CCs
 
