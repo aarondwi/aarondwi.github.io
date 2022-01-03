@@ -1,11 +1,11 @@
 # Current Database Concurrency Control Algorithm Landscape
 
-This is my thoughts as why academic CC algorithms are not adopted by newest database products (and vendors).
+This is my thoughts as why academic CC algorithms are not widely adopted by newest database products (and vendors).
 
 ## Background
 
 1. Lots of production databases, implementation wise, adopt traditional 2PC/OCC + clock like + snapshot for read is adopted, and not esoteric implementations. While write may take long locks (cause distributed, fsync latency, etc), read doesn't have to suffer. And majority of workloads are read-heavy, so this works.
-2. Lock based are usually easier to understand (cause already used to) and implement (cause both single node and distributed have the same pattern), for both pessimistic 2PC and OCC.
+2. Lock based are usually easier to understand (cause already used to) and implement (cause both single node and distributed have the same pattern), which means less bugs, for both pessimistic 2PC and OCC.
 3. Even with non-advanced CC algorithms, it already meets performance requirements. The problems faced in real production usually more into schema change, capacity (memory, disk, etc), recovery, which are not addressed by most academic systems.
 
 There are some **techniques** that are already used to go around heavy contention problem, such as:
@@ -13,33 +13,26 @@ There are some **techniques** that are already used to go around heavy contentio
 1. Some companies open separate campaign. For example, e-commerce may splits voucher redeem from the sales day itself, by asking user to manually redeem before the sales or ask user to invite others to get more discounts. This allows the contention to be split not into 1 min, but for example, to 3 days. This works also as easy promotions.
 2. Another case, if only 1 type of item going to be sold (xiaomi did this kind of flash sale back before), developers can also opt not to materialize the conflict `at all`, as they are not having any limit that should be preserved, just to record who buys the thing, has already paid, etc.
 
-Example of latest CC used in prod DB:
+Example of latest CCs used in known production DB:
 
 1. [FoundationDB](https://www.foundationdb.org/files/fdb-paper.pdf) -> OCC 2PC, possibly with false negative but no false positive, can explicitly remove/add range.
-2. [CockroachDB](https://www.cockroachlabs.com/blog/serializable-lockless-distributed-isolation-cockroachdb/) -> HLC OCC 2PC, like spanner
-3. [Yugabyte](https://docs.yugabyte.com/latest/architecture/transactions/distributed-txns/) -> HLC OCC 2PC, like spanner
-4. [TiDB](https://tikv.org/deep-dive/distributed-transaction/percolator/) -> percolator model, with backoff when meeting higher ids
-5. [MongoDB](http://jepsen.io/analyses/mongodb-4.2.6) -> Snapshot isolation, HLC, OCC
-6. [AtlasDB](https://palantir.github.io/atlasdb/html/transactions/transaction_protocol.html) -> percolator model, and then [SSI](https://www.researchgate.net/profile/Patrick-Oneil-7/publication/220225203_Making_snapshot_isolation_serializable/links/00b49520567eace81f000000/Making-snapshot-isolation-serializable.pdf) for serializability
-
-And some only do best effort:
-
-1. [Vitess](https://vitess.io/docs/overview/scalability-philosophy/)
-2. Citus/Hyperscale
-
-Some esoteric CC implementation used are:
-
-1. [FaunaDB](https://fauna.com/blog/consistency-without-clocks-faunadb-transaction-protocol) -> an OCC variant of [Calvin](http://cs.yale.edu/homes/thomson/publications/calvin-sigmod12.pdf)
-2. ING Bank's Rebel -> [PSAC](https://arxiv.org/abs/1908.05940)
-3. [VoltDB](https://www.voltdb.com/wp-content/uploads/2017/03/lv-technical-note-how-voltdb-does-transactions.pdf) -> [HStore](https://www.cs.cmu.edu/~pavlo/courses/fall2013/static/slides/h-store.pdf) model
-4. PostgreSQL/AtlasDB -> Snapshot isolation + [SSI](https://www.researchgate.net/profile/Patrick-Oneil-7/publication/220225203_Making_snapshot_isolation_serializable/links/00b49520567eace81f000000/Making-snapshot-isolation-serializable.pdf)
-5. [Couchbase](https://blog.couchbase.com/distributed-multi-document-acid-transactions/) -> [RAMP](http://www.bailis.org/papers/ramp-sigmod2014.pdf)
-6. Facebook's TAO -> [RAMP-TAO](https://engineering.fb.com/2021/08/18/core-data/ramp-tao/)
-7. SQL Server's [Hekaton](https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/)
+2. [CockroachDB](https://www.cockroachlabs.com/blog/serializable-lockless-distributed-isolation-cockroachdb/)/[Yugabyte](https://docs.yugabyte.com/latest/architecture/transactions/distributed-txns/) -> HLC OCC 2PC, like spanner
+3. [TiDB](https://tikv.org/deep-dive/distributed-transaction/percolator/) -> percolator model, with backoff when meeting higher ids
+4. [MongoDB](http://jepsen.io/analyses/mongodb-4.2.6) -> Snapshot isolation, HLC, OCC
+5. [AtlasDB](https://palantir.github.io/atlasdb/html/transactions/transaction_protocol.html) -> percolator model, and then [SSI](https://www.researchgate.net/profile/Patrick-Oneil-7/publication/220225203_Making_snapshot_isolation_serializable/links/00b49520567eace81f000000/Making-snapshot-isolation-serializable.pdf) for serializability
+6. [Vitess](https://vitess.io/docs/overview/scalability-philosophy/) and/or [Citus/Hyperscale](https://www.citusdata.com/blog/2017/11/22/how-citus-executes-distributed-transactions/) -> 2PC and/or best effort, with bit more check, like deadlock detection.
+7. [FaunaDB](https://fauna.com/blog/consistency-without-clocks-faunadb-transaction-protocol) -> an OCC variant of [Calvin](http://cs.yale.edu/homes/thomson/publications/calvin-sigmod12.pdf)
+8. ING Bank's Rebel -> [PSAC](https://arxiv.org/abs/1908.05940)
+9. [VoltDB](https://www.voltdb.com/wp-content/uploads/2017/03/lv-technical-note-how-voltdb-does-transactions.pdf) -> [HStore](https://www.cs.cmu.edu/~pavlo/courses/fall2013/static/slides/h-store.pdf) model
+10. PostgreSQL -> Snapshot isolation + [SSI](https://www.researchgate.net/profile/Patrick-Oneil-7/publication/220225203_Making_snapshot_isolation_serializable/links/00b49520567eace81f000000/Making-snapshot-isolation-serializable.pdf)
+11. [Couchbase](https://blog.couchbase.com/distributed-multi-document-acid-transactions/) -> [RAMP](http://www.bailis.org/papers/ramp-sigmod2014.pdf)
+12. Facebook's TAO -> [RAMP-TAO](https://engineering.fb.com/2021/08/18/core-data/ramp-tao/)
+13. SQL Server's [Hekaton](https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/)
+14. [GaussDB/openGauss MOT](https://www.researchgate.net/publication/344351736_Industrial-Strength_OLTP_Using_Main_Memory_and_Many_Cores) -> [Silo](http://people.csail.mit.edu/stephentu/papers/silo.pdf)
 
 More traditional design, which allow asking explicitly for read/write lock:
 
-1. Traditional SQL RDBMS
+1. Traditional SQL RDBMS (`FOR SHARE / FOR UPDATE`)
 2. [Neo4J](https://neo4j.com/docs/java-reference/current/transaction-management)
 3. [Couchbase](https://blog.couchbase.com/distributed-multi-document-acid-transactions/)
 4. [NDB/RonDB cluster](https://docs.rondb.com/intro_transactions/)
@@ -62,6 +55,8 @@ IMHO cause other esoteric techniques, are either:
 9. All their benchmarks dont include disk-write/sync and repl, only in memory. Looks really fast, but assuming failure are not correlated
 10. Do not take account how to handle index update, except by also going to serializable check. This means updating data and index should be in lockstep too
 11. Very wasteful on abort
+
+Which means all of them has lots of drawbacks, and those drawbacks/behaviors are not widely known yet, making adopting them more dangerous
 
 ## About academic CCs
 
