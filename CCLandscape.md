@@ -44,20 +44,22 @@ More traditional design, which allow asking explicitly for read/write lock:
 
 IMHO cause other esoteric techniques, are either:
 
-1. Can't be used on distributed setting, cause too expensive
+1. Can't be used on distributed setting, cause too expensive (or no explanation how to do so at all)
 2. No explanation for management side (loading/updating ad-hoc data, add index, etc), but only focusing on performance.
 3. Hard to implement correctly
 4. Most real world problem have clear, easy perf target (human speed) + easily shardable per user, low contention, with high contention only on specific combined metric (total likes, etc). Even percolator easily reach 2million/s. For those cant, usually very specific only (time series, HFT, etc)
 5. Focus more on higher contention, by somehow rescheduling/reordering to remove contention (but for real contention, still sequential, so not really an improvement, unless it is CRDT like)
 6. 2PC for multi partition, only scalable per partition
-7. Employ non-snapshot algo, has bad perf for long running read transactions, which are majority of workloads (but should be avoided either way for high-throughput OLTP )
+7. Employ non-snapshot algo, has bad perf for long running read transactions, which are majority of workloads (but should be avoided either way for high-throughput OLTP)
 8. For non single-global tso/equivalent, meaning need very careful engineering to not allow partial read
 9. All their benchmarks dont include disk-write/sync and repl, only in memory. Looks really fast, but assuming failure are not correlated
 10. Do not take account how to handle index update, except by also going to serializable check. This means updating data and index should be in lockstep too (or is this the only way?)
 11. Very wasteful on abort
 12. Does not assume dynamic transaction, which is the most typical DBMS usage (JDBC, etc)
+13. Need a full rewrite, not easily adaptable to current popular database/storage engine
+14. Need static workload analysis, dynamic/ad-hoc query doesn't receive optimization
 
-Which means all of them has lots of drawbacks, and those drawbacks/behaviors are not widely known yet, making adopting them more dangerous
+Which means all of them does not implement all that is needed to create a proper production ready database, and the implementations need to fill them. This means lots of behaviors not yet known, and how it will impact the design/performance after the algo got implemented
 
 ## About academic CCs
 
@@ -79,3 +81,4 @@ Notes: every non snapshot doesnt supp non blocking read! So bad for long running
 14. [PSAC](https://arxiv.org/abs/1908.05940) is very wasteful on abort
 15. [Early Lock Release](https://infoscience.epfl.ch/record/152158) will complicate read semantic, will need also to go thru the log. Also cause possibility of holes in the log, as later transaction persists before older ones.
 16. [Phaser/Doppel](http://pdos.csail.mit.edu/~neha/phaser.pdf) can achieve high throughput under contention, but should only be CRDT-safe, unnecessarily block reads, and operations can't return data.
+17. [QURO](https://db.cs.washington.edu/events/database_day/2015/slides/query_reorder.pdf) need full static analysis of all workloads, not allowing dynamic query to be also optimized (but possible to be made incremental)
