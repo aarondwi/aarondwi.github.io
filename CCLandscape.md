@@ -11,7 +11,7 @@ This is my thoughts as why academic CC algorithms are not widely adopted by newe
 There are some **techniques** that are already used to go around heavy contention problem, such as:
 
 1. Some companies open separate campaign. For example, e-commerce may splits voucher redeem from the sales day itself, by asking user to manually redeem before the sales or ask user to invite others to get more discounts. This allows the contention to be split not into 1 min, but for example, to 3 days. This works also as easy promotions.
-2. Another case, if only 1 type of item going to be sold (xiaomi did this kind of flash sale back before), developers can also opt not to materialize the conflict `at all`, as they are not having any limit that should be preserved, just to record who buys the thing, has already paid, etc.
+2. Another case, if only 1 type of item going to be sold (xiaomi did this kind of flash sale back before), developers can also opt not to materialize the conflict `at all`, as they are not having any limit that should be preserved, just to record who buys the thing, has already paid, etc. (Don't know if this was the technique applied, but should work)
 
 Example of latest CCs used in known production DB:
 
@@ -44,23 +44,24 @@ More traditional design, which allow asking explicitly for read/write lock:
 
 IMHO cause other esoteric techniques, are either:
 
-1. can't be used on distributed setting, cause too expensive
+1. Can't be used on distributed setting, cause too expensive
 2. No explanation for management side (loading/updating ad-hoc data, add index, etc), but only focusing on performance.
 3. Hard to implement correctly
 4. Most real world problem have clear, easy perf target (human speed) + easily shardable per user, low contention, with high contention only on specific combined metric (total likes, etc). Even percolator easily reach 2million/s. For those cant, usually very specific only (time series, HFT, etc)
-5. Focus more on higher contention, by somehow rescheduling/reordering to remove contention (but for real contention, still sequential, so not really an improvement)
+5. Focus more on higher contention, by somehow rescheduling/reordering to remove contention (but for real contention, still sequential, so not really an improvement, unless it is CRDT like)
 6. 2PC for multi partition, only scalable per partition
-7. Employ non-snapshot algo, has bad perf for long running read transactions, which are majority of workloads
+7. Employ non-snapshot algo, has bad perf for long running read transactions, which are majority of workloads (but should be avoided either way for high-throughput OLTP )
 8. For non single-global tso/equivalent, meaning need very careful engineering to not allow partial read
 9. All their benchmarks dont include disk-write/sync and repl, only in memory. Looks really fast, but assuming failure are not correlated
-10. Do not take account how to handle index update, except by also going to serializable check. This means updating data and index should be in lockstep too
+10. Do not take account how to handle index update, except by also going to serializable check. This means updating data and index should be in lockstep too (or is this the only way?)
 11. Very wasteful on abort
+12. Does not assume dynamic transaction, which is the most typical DBMS usage (JDBC, etc)
 
 Which means all of them has lots of drawbacks, and those drawbacks/behaviors are not widely known yet, making adopting them more dangerous
 
 ## About academic CCs
 
-Notes: every non snapshot doesnt supp non blocking read! So bad for long running read only tx. But usually good enough for adhoc query by product team
+Notes: every non snapshot doesnt supp non blocking read! So bad for long running read only tx (HTAP case). But usually good enough for adhoc query by product team
 
 1. [BCC](http://www.vldb.org/pvldb/vol9/p504-yuan.pdf) / [SSI](https://www.researchgate.net/profile/Patrick-Oneil-7/publication/220225203_Making_snapshot_isolation_serializable/links/00b49520567eace81f000000/Making-snapshot-isolation-serializable.pdf) can be used, but expensive cause need to scatter gather read range (basically back to like 2PC in distributed setting), and BCC has weird design that blocks everything for read only
 2. [BOHM](https://arxiv.org/abs/1412.2324v2) is weird when need to load data cause of preallocation, but may be good cause allowing almost all parallelism. Doesn't explain indexing, management, etc. Need custom language, cause deterministic. Memory only, not including disk and replication.
@@ -77,3 +78,4 @@ Notes: every non snapshot doesnt supp non blocking read! So bad for long running
 13. [Cicada](https://hyeontaek.com/papers/cicada-sigmod2017.pdf) is like combination of tictoc/silo/foedus/mocc/ermia/hekaton, so inherits most of its benefits or uselessness. It becomes good cause really often garbage collection, cant support long running read only tx. Memory only, not including disk and replication.
 14. [PSAC](https://arxiv.org/abs/1908.05940) is very wasteful on abort
 15. [Early Lock Release](https://infoscience.epfl.ch/record/152158) will complicate read semantic, will need also to go thru the log. Also cause possibility of holes in the log, as later transaction persists before older ones.
+16. [Phaser/Doppel](http://pdos.csail.mit.edu/~neha/phaser.pdf) can achieve high throughput under contention, but should only be CRDT-safe, unnecessarily block reads, and operations can't return data.
