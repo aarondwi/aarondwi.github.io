@@ -44,8 +44,8 @@ More traditional design, which allow asking explicitly for read/write lock:
 
 IMHO cause other esoteric techniques, are either:
 
-1. Can't be used on distributed setting, cause too expensive (or no explanation how to do so at all)
-2. No explanation for management side (loading/updating ad-hoc data, add index, etc), but only focusing on performance.
+1. Can't be used on distributed setting, cause too expensive (any in-memory gain fully removed on distributed setting), or no explanation how to do so at all
+2. No explanation for management side (loading/updating ad-hoc data, add index, etc), but only focusing on performance. These management side basically should also go through serializable check (or is this the only way?)
 3. Hard to implement correctly, need lots of state tracking
 4. Most real world problem have clear, easy perf target (human speed) + easily shardable per user, low contention, with high contention only on specific combined metric (total likes, etc). Even percolator easily reach 2million/s. For those cant, usually very specific only (time series, HFT, etc)
 5. Focus more on higher contention, by somehow rescheduling/reordering to remove contention (but for real contention, still sequential, so not really an improvement, unless it is CRDT like)
@@ -53,11 +53,10 @@ IMHO cause other esoteric techniques, are either:
 7. Employ non-snapshot algo, has bad perf for long running read transactions, which are majority of workloads (but should be avoided either way for high-throughput OLTP)
 8. For non single-global tso/equivalent, meaning need very careful engineering to not allow partial read
 9. All their benchmarks dont include disk-write/sync and repl, only in memory. Looks really fast, but assuming failure are not correlated
-10. Do not take account how to handle index update, except by also going to serializable check. This means updating data and index should be in lockstep too (or is this the only way?)
+10. Need static workload analysis, dynamic/ad-hoc query doesn't receive optimization
 11. Very wasteful on abort
 12. Does not assume dynamic transaction, which is the most typical DBMS usage (JDBC, etc)
 13. Need a full rewrite, not easily adaptable to current popular database/storage engine
-14. Need static workload analysis, dynamic/ad-hoc query doesn't receive optimization
 
 Which means all of them does not implement all that is needed to create a proper production ready database, and the implementations need to fill them. This means lots of behaviors not yet known, and how it will impact the design/performance after the algo got implemented
 
@@ -66,9 +65,9 @@ Which means all of them does not implement all that is needed to create a proper
 Notes: every non snapshot doesnt supp non blocking read! So bad for long running read only tx (HTAP case). But usually good enough for adhoc query by product team
 
 1. [SSI](https://www.researchgate.net/profile/Patrick-Oneil-7/publication/220225203_Making_snapshot_isolation_serializable/links/00b49520567eace81f000000/Making-snapshot-isolation-serializable.pdf) is expensive cause need to scatter gather read range (basically back to like 2PC in distributed setting), and final check should be in critical section
-2. [BOHM](https://arxiv.org/abs/1412.2324v2) is weird when need to load data cause of preallocation, but may be good cause allowing almost all parallelism. Doesn't explain indexing, management, etc. Need custom language, cause deterministic. Memory only, not including disk and replication.
+2. [BOHM](https://arxiv.org/abs/1412.2324v2) cause of preallocation, gonna need to allocate all when doing adhoc insertion, etc, but may be good cause allowing almost all parallelism. Doesn't explain indexing, management, etc. Need custom language, cause deterministic. Memory only, not including disk and replication.
 3. [Orthrus](http://www.cs.umd.edu/~abadi/papers/orthrus-sigmod16.pdf)/[DORA](https://dl.acm.org/doi/10.14778/1920841.1920959) becomes weird when need result from multi partition before work -> where to do the work? Presumably will be last thread -> new bottleneck, and doesnt handle management. Need custom language, cause deterministic. Memory only, not including disk and replication.
-4. [Strife](https://gunaprsd.org/assets/strife-sigmod-2020.pdf) aims to handle high contention, but has weird partitioning scheme, which takes lots of time (hundred ms), and doesnt handle management either. Need custom lang, cause deterministic. Memory only, not including disk and replication.
+4. [Strife](https://gunaprsd.org/assets/strife-sigmod-2020.pdf) aims to handle high contention, but has heavy compute partitioning scheme, which takes lots of time (hundred ms), and doesnt handle management either. Need custom lang, cause deterministic. Memory only, not including disk and replication.
 5. [MOCC](http://www.vldb.org/pvldb/vol10/p49-wang.pdf) means more network traffic for temperature checking, lock, etc (cant go full read/write set only during commit), but can probably be improved with caching temperature, or local only temp. Basically still OCC.
 6. [Silo](http://people.csail.mit.edu/stephentu/papers/silo.pdf)/[foedus](http://www.hpl.hp.com/techreports/2015/HPL-2015-37.pdf) works both memory/dist, but those on distributed setting are using HLC/TrueTime/TSO. Variant used in most newsql
 7. Even [Calvin](http://cs.yale.edu/homes/thomson/publications/calvin-sigmod12.pdf), while being deterministic, need to do reconnaissance check first (expensive if lots), and then goes to OCC like semantic
@@ -82,5 +81,6 @@ Notes: every non snapshot doesnt supp non blocking read! So bad for long running
 15. [Early Lock Release](https://infoscience.epfl.ch/record/152158) will complicate read semantic, will need also to go thru the log. Also cause possibility of holes in the log, as later transaction persists before older ones.
 16. [Phaser/Doppel](http://pdos.csail.mit.edu/~neha/phaser.pdf) can achieve high throughput under contention, but should only be CRDT-safe, unnecessarily block reads (cause of phase synchronization between join and split), and operations can't return data (to guarantee serializability).
 17. [QURO](https://db.cs.washington.edu/events/database_day/2015/slides/query_reorder.pdf) need full static analysis of all workloads, not allowing dynamic query to be also optimized (but possible to be made incremental)
-18. [IC3](https://nyuscholars.nyu.edu/en/publications/scaling-multicore-databases-via-constrained-parallel-execution) also need static analysis to create dependency graph. Can't dynamically/incrementally add new transaction, as it will change the analysis, unless going back to traditional 2PC. Basically based on dependency graph between either full transaction, or piece(s) of transaction, some pieces need to wait to reduce abort. All of the checks need to be done atomically, e.g. inside a critical section
+18. [IC3](https://nyuscholars.nyu.edu/en/publications/scaling-multicore-databases-via-constrained-parallel-execution)/[Transaction Chopping](https://www.comp.nus.edu.sg/~cs5226/papers/xact-chopping-tods95.pdf) also need static analysis to create dependency graph. Can't dynamically/incrementally add new transaction, as it will change the analysis, unless going back to traditional 2PC. Basically based on dependency graph between either full transaction, or piece(s) of transaction, some pieces need to wait to reduce abort. All of the checks need to be done atomically, e.g. inside a critical section
 19. [BCC](http://www.vldb.org/pvldb/vol9/p504-yuan.pdf) does lots of differing for read-only (the most typical query) to reduce dependency graph size. Read Check reduction done via partitioned hash-map, so reduce critical section size, which is expensive on distributed setting. Memory only, not including disk and replication.
+20. [Callas/MCC](https://www.cs.cornell.edu/lorenzo/papers/Chao15Callas.pdf) is a derivative of IC3/TxChopping, but has differentiation via nexus locks (across group as typical locks, inside group via `release locks before`/ deferred lock release). The group created is mostly from same, hot transaction. In effect, it behaves as if it is single thread per group. Across groups, still behaves as if blocking, but already achieves much parallelism inside a group. But as locks release is deffered, depends on the logic (lock all then check all or lock check in steps) basically if the front one abort, gonna abort everything else, which is wasteful. And still need static analysis, to reduce the abort
