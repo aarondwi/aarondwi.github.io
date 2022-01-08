@@ -11,6 +11,7 @@
 7. Isolation in ACID is a very, very insanely expensive illusion
 8. Async RPC framework is (mostly) useless, if not harmful
 9. SLAs are kinda weird (better violating or just downtime?)
+10. Automate for sake of automating?
 
 ## non-technical
 

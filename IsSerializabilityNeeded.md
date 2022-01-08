@@ -8,7 +8,7 @@ Most devs, are already used to manage part of concurrency. There are lots of rea
 2. Most people also use cache to speed up read queries, and without the checking of current state. Which makes the system as a whole not serializable.
 3. Big companies typically need to use microservices, to break the physical barrier to development. This makes the need for distributed transactions, in forms of choreography/orchestration appear. Both are **NOT** serializable, as I argued [here](https://aarondwi.github.io/DTXArguments)
 4. Handling non-transactional system, such as 3rd party, already force user to think about concurrency semantics.
-5. As I argued [here](https://aarondwi.github.io/HandlingConstraints), even non `Invariant Confluence` data can be handled easily without serializability
+5. As I argued [here](https://aarondwi.github.io/HandlingConstraints), even non `Invariant Confluence` data can be handled without serializability, albeit need more work.
 
 These big companies/systems show that even without complex CC algo, or only limited guarantee, with domain understanding, system can be made to work, meeting perf/integrity requirement:
 
