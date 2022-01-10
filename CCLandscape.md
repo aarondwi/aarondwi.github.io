@@ -29,6 +29,7 @@ Example of latest CCs used in known production DB:
 12. Facebook's TAO -> [RAMP-TAO](https://engineering.fb.com/2021/08/18/core-data/ramp-tao/)
 13. SQL Server's [Hekaton](https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/)
 14. [GaussDB/openGauss MOT](https://www.researchgate.net/publication/344351736_Industrial-Strength_OLTP_Using_Main_Memory_and_Many_Cores) -> [Silo](http://people.csail.mit.edu/stephentu/papers/silo.pdf)
+15. [NDB Cluster](https://mikaelronstrom.blogspot.com/2018/09/non-blocking-two-phase-commit-in-ndb.html) -> Lock based 2PC hybrid, which is normal 2PC over partition, linear 2PC over replica with backups getting locked first
 
 More traditional design, which allow asking explicitly for read/write lock:
 
