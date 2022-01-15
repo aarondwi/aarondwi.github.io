@@ -28,7 +28,7 @@ In most case, can also use these as basic search/queue/etc. This is enough for m
 
 **Or even custom, such as:**
 
-1. HFT/gaming server(disruptor, chronicle, etc) [not a database per se, but in use effectively mimics a database]
+1. disruptor, chronicle, prevayler, etc [not a database per se, but in use effectively mimics a database]
 2. Scientific research (e.g. genbank)
 3. Entity-resolution(tilodb)
 4. Accounting-focus (tigerbeetle)

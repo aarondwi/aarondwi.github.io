@@ -10,8 +10,10 @@
 6. Code to write VS to learn, or why big framework/abstraction is bad
 7. Isolation in ACID is a very, very insanely expensive illusion
 8. Async RPC framework is (mostly) useless, if not harmful
-9. SLAs are kinda weird (better violating or just downtime?)
+9. SLAs are kinda weird (better violating or just downtime?), which better be split into `soft` SLA and `hard` SLA
 10. Automate for sake of automating?
+11. There is always a place for middle value (memory vs NVM vs SSD vs HDD, GC + pool vs pure GC vs pure manual, all memory vs buffer manager vs wisckey, electron/react native/flutter, etc)
+12. Tree structure as a model of concurrency among business entities
 
 ## non-technical
 
