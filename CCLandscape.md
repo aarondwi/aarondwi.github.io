@@ -6,7 +6,7 @@ This is my thoughts as why academic CC algorithms are not widely adopted by newe
 
 1. Lots of production databases, implementation wise, adopt traditional 2PC/OCC + clock like + snapshot for read is adopted, and not esoteric implementations. While write may take long locks (cause distributed, fsync latency, etc), read doesn't have to suffer. And majority of workloads are read-heavy, so this works.
 2. Lock based are usually easier to understand (cause already used to) and implement (cause both single node and distributed have the same pattern), which means less bugs, for both pessimistic 2PC and OCC.
-3. Even with non-advanced CC algorithms, it already meets performance requirements. The problems faced in real production usually more into schema change, capacity (memory, disk, etc), recovery, which are not addressed by most academic systems.
+3. Even with non-advanced CC algorithms, it already meets performance requirements. The problems faced in real production usually more into schema change stability, capacity (memory, disk, etc), recovery, etc
 
 There are some **techniques** that are already used to go around heavy contention problem, such as:
 

@@ -9,6 +9,7 @@ Most devs, are already used to manage part of concurrency. There are lots of rea
 3. Big companies typically need to use microservices, to break the physical barrier to development. This makes the need for distributed transactions, in forms of choreography/orchestration appear. Both are **NOT** serializable, as I argued [here](https://aarondwi.github.io/DTXArguments)
 4. Handling non-transactional system, such as 3rd party, already force user to think about concurrency semantics.
 5. As I argued [here](https://aarondwi.github.io/HandlingConstraints), even non `Invariant Confluence` data can be handled without serializability, albeit need more work.
+6. CPU can also deliver wrong results. Its effect depends, but for ACID, mutex violation is the worst that can happen.
 
 These big companies/systems show that even without complex CC algo, or only limited guarantee, with domain understanding, system can be made to work, meeting perf/integrity requirement:
 
