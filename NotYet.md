@@ -14,6 +14,7 @@
 10. Automate for sake of automating?
 11. There is always a place for middle value (memory vs NVM vs SSD vs HDD, GC + pool vs pure GC vs pure manual, all memory vs buffer manager vs wisckey, electron/react native/flutter, etc)
 12. Tree structure as a model of concurrency among business entities
+13. Simplicity by using the simplest silver bullet
 
 ## non-technical
 

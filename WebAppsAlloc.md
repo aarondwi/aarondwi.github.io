@@ -16,7 +16,7 @@ Basically, most web apps spent too much time doing allocs. CPU time spent alloca
 
 To solve it:
 
-1. Reuse request/response buffer/object (pooling). Mostly have same shapes, and relatively close size (because mostly same type of request). Can use libs like [fasthttp](https://github.com/valyala/fastjson), etc. For typical static response (error object, OK without context specific data, etc) initiate once, reuse
+1. Reuse request/response buffer/object (pooling). Mostly have same shapes, and relatively close size (because mostly same type of request). Can use libs like [fasthttp](https://github.com/valyala/fasthttp), etc. For typical static response (error object, OK without context specific data, etc) initiate once, reuse
 2. Use non-serializing lib (like [jsonparser](https://github.com/buger/jsonparser)/[fastjson](https://github.com/valyala/fastjson), and soon [molecule](https://github.com/richardartoul/molecule)). Or at least use non-heavy allocating ones (like [easyjson](https://github.com/mailru/easyjson) or [gogo protobuf](https://github.com/gogo/protobuf)).
 3. Need to start with storage (DB, queue, cache, etc) clients that does less allocs. If possible, also native zero allocs API (e.g. [flatbuffers](https://google.github.io/flatbuffers/)/[capnproto](https://capnproto.org)/custom)
 4. Use low allocation logging library (like [zerolog](https://github.com/rs/zerolog) or [zap](https://github.com/uber-go/zap))
