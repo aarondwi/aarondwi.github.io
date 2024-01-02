@@ -47,11 +47,11 @@ IMHO cause other esoteric techniques, are either:
 
 1. Can't be used on distributed setting, cause too expensive (any in-memory gain fully removed on distributed setting), or no explanation how to do so at all
 2. No explanation for management side (loading/updating ad-hoc data, add index, etc), but only focusing on performance. These management side basically should also go through serializable check (or is this the only way?)
-3. Hard to implement correctly, need lots of state tracking
+3. Hard to implement correctly, need lots of state tracking (lots of memory)
 4. Most real world problem have clear, easy perf target (human speed) + easily shardable per user, low contention, with high contention only on specific combined metric (total likes, etc). Even percolator easily reach 2million/s. For those cant, usually very specific only (time series, HFT, etc)
 5. Focus more on higher contention, by somehow rescheduling/reordering to remove contention (but for real contention, still sequential, so not really an improvement, unless it is CRDT like)
 6. 2PC for multi partition, only scalable per partition
-7. Employ non-snapshot algo, has bad perf for long running read transactions, which are majority of workloads (but should be avoided either way for high-throughput OLTP)
+7. Employ non-snapshot algo, has bad perf for long running read transactions, which are quite common (but should be avoided either way for high-throughput OLTP). Some has esoteric write locks behavior to allow non blocking read, but this is far more complex than the standard snapshot algorithm
 8. For non single-global tso/equivalent, meaning need very careful engineering to not allow partial read
 9. All their benchmarks dont include disk-write/sync and repl, only in memory. Looks really fast, but assuming failure are not correlated
 10. Need static workload analysis, dynamic/ad-hoc query doesn't receive optimization
@@ -59,7 +59,7 @@ IMHO cause other esoteric techniques, are either:
 12. Does not assume dynamic transaction, which is the most typical DBMS usage (JDBC, etc)
 13. Need a full rewrite, not easily adaptable to current popular database/storage engine
 
-Which means all of them does not implement all that is needed to create a proper production ready database, and the implementations need to fill them. This means lots of behaviors not yet known, and how it will impact the design/performance after the algo got implemented
+Which means almost all of them does not implement all that is expected for a proper production ready database, and the implementations need to fill them. This means lots of behaviors not yet known, and how it will impact the design/performance after the algo got implemented
 
 ## About academic CCs
 
@@ -76,9 +76,9 @@ Notes: every non snapshot doesnt supp non blocking read! So bad for long running
 9. [MV3C](https://www.researchgate.net/publication/311081544_Transaction_Repair_for_Multi-Version_Concurrency_Control) is expensive, cause need to communicate change back-and-forth. Can use its optimization, and do local caching to alleviate. And need custom language
 10. [SSN](https://dl.acm.org/doi/10.1145/2771937.2771949) is a single global object (subject to contention). The explained fully concurrent one is far more complex, full of CAS, retries, state-tracking, etc.
 11. [Ermia](https://www2.cs.sfu.ca/~tzwang/ermia.pdf)/[Hekaton](https://www.microsoft.com/en-us/research/publication/hekaton-sql-servers-memory-optimized-oltp-engine/) are usable. For example, out of order writing closely mimics mysql. SI is used by almost all newsql right now. Indirection used to alleviate locks.
-12. [Tictoc](https://dl.acm.org/doi/10.1145/2882903.2882935) provides nice abort reducing, like MOCC. But not strict serializable -> already more than enough. For snapshot, can utilize HLC or the like. But can cause fracture reads, cause no authority which things got read.
+12. [Tictoc](https://dl.acm.org/doi/10.1145/2882903.2882935) provides nice abort reducing, like MOCC. But not strict serializablee, which is already more than enough. For snapshot, can utilize HLC or the like.
 13. [Cicada](https://hyeontaek.com/papers/cicada-sigmod2017.pdf) is like combination of tictoc/silo/foedus/mocc/ermia/hekaton, so inherits most of its benefits, but few uselessness remains. It becomes good only with really often garbage collection to remove unneeded version (or else gonna need long traversal), so cant support long running read only tx without reducing performance. But supposedly the fastest possible from this kind of OCC (against MOCC, Silo, Foedus, etc). Most optimizations only happen on single node. Memory only, not including disk and replication.
-14. [PSAC](https://arxiv.org/abs/1908.05940) runs all possible cases directly without waiting, assuming both success and failure. Very wasteful on abort
+14. [PSAC](https://arxiv.org/abs/1908.05940) runs all possible cases directly without waiting, assuming both success and failure. Need to finish an entire part of a transaction at once, can't be waiting for others or become blocking again, just like SAGA. Very wasteful on abort
 15. [Early Lock Release](https://infoscience.epfl.ch/record/152158) will complicate read semantic, will need also to go thru the log. Also cause possibility of holes in the log, as later transaction persists before older ones.
 16. [Phaser/Doppel](http://pdos.csail.mit.edu/~neha/phaser.pdf) can achieve high throughput under contention, but should only be CRDT-safe, unnecessarily block reads (cause of phase synchronization between join and split), and operations can't return data (to guarantee serializability).
 17. [QURO](https://db.cs.washington.edu/events/database_day/2015/slides/query_reorder.pdf) need full static analysis of all workloads, not allowing dynamic query to be also optimized (but possible to be made incremental)
@@ -89,3 +89,6 @@ Notes: every non snapshot doesnt supp non blocking read! So bad for long running
 22. [RedBlue](https://www.usenix.org/system/files/conference/osdi12/osdi12-final-162.pdf) allow commutative ops (blue) to be executed in parallel, while non-commutative (red) one sequentially, which means only CRDT-like ops can go parallel (Close to Phaser and MCC). This needs static analysis (or developer creating generator/shadow ops manually).
 23. [Transaction Healing](https://yingjunwu.github.io/papers/sigmod2016.pdf) requires static analysis, basically at runtime instead of discarding entire work, it recomputes only from the first conflict. Change checking done in a optimized way via pointer directly. Also need to be written in custom language, so it can manage the code to re-run.
 24. [Lazy Transaction](https://dl.acm.org/doi/abs/10.1145/2588555.2610529) requires deterministic code to decide now and later phase, to ensure it is deferring executions correctly. This semantic is already used, for example, like MySQL change buffer, or fractal tree in TokuDB (Those 2 are not concurrency control mechanism, rather just disk optimization in the form of data structure)
+25. [Sundial](https://people.csail.mit.edu/sanchez/papers/2018.sundial.vldb.pdf) quite close to tictoc algorithm. Use of logical lease would allow pretty simple caching mechanism
+26. [PPCC](https://arxiv.org/pdf/1611.05557.pdf) mostly optimizing read-after-write and write-after-read use case (this one is quite common). Precedence check could be cheap in distributed setting, cause can check locally first
+27. [PLP] (http://www.pandis.net/resources/pvldb11pandis.pdf) a lightweight partitioning method. Assigning task to data. An optimization for single machine use case

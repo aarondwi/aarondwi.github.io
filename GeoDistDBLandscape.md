@@ -22,7 +22,7 @@ Most prefer safety use repl across DC in single region, async for cross region, 
 5. [Dynamodb global tables](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables_HowItWorks.html) -> CDC based, LWW conflict detection. Strongly consistent reads only for same region as writes
 6. [Vitess](https://vitess.io/docs/reference/features/two-phase-commit/) -> Local, best effort via coordinator, or 2PC. Based on [here](https://vitess.io/docs/overview/scalability-philosophy/#no-active-active-replication), direct all writes to single region unless the data easily partitioned to many region
 7. [Cockroachdb](https://www.cockroachlabs.com/docs/cockroachcloud/architecture.html?filters=dedicated) -> 2PC over geo, really slow, but easiest to get correctness
-8. [Postgres BDR](https://wiki.postgresql.org/wiki/BDR_Project) -> Custom conflict resolution based
+8. [Postgres BDR](https://wiki.postgresql.org/wiki/BDR_Project), [1](https://www.enterprisedb.com/docs/pgd/latest/consistency/conflicts/), [2](https://www.enterprisedb.com/docs/pgd/latest/consistency/crdt/) -> Custom conflict resolution based
 9. [Galera](https://severalnines.com/database-blog/how-use-cluster-cluster-replication-galera-cluster) -> active-active is dangerous, doesnt have any conflict detection or 2PC
 10. NDB/[RonDB](https://docs.rondb.com/rondb_global_internal/) cluster -> Sync across cluster, can add async cross region replica, RC isolation level only
 11. [Consul](https://learn.hashicorp.com/tutorials/consul/reference-architecture) -> using raft in a DC/AZ, gossip for multi region
